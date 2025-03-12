@@ -13,15 +13,31 @@ describe("MyToken", function () {
     const MyToken = await ethers.getContractFactory("MyToken");
     const mytoken = await MyToken.deploy(tokenName,tokenSymbol);
 
-    return { mytoken, tokenName, tokenSymbol };
+    const [deployer] = await ethers.getSigners();
+
+    return { mytoken, tokenName, tokenSymbol, deployer };
   }
 
   it("Should deploy and set the name and symbol correctly", async function () {
-    const { mytoken, tokenName, tokenSymbol } = await loadFixture(
+    const { mytoken, tokenName, tokenSymbol, deployer } = await loadFixture(
       deployContractAndSetVariables
     );
 
+    const _initialSupply = BigInt(100 * (10 ** 18));
+
+    expect(await mytoken.balanceOf(deployer.address)).to.equal(_initialSupply);
     expect(await mytoken.name()).to.equal(tokenName);
-    expect(await mytoken.symbol()).to.equal(tokenSymbol);;
+    expect(await mytoken.symbol()).to.equal(tokenSymbol);
   });
+
+  it("Should return the total number of tokens available when the contract is deployed", async function () {
+    const { mytoken } = await loadFixture(
+      deployContractAndSetVariables
+    );
+
+    const _initialSupply = BigInt(100 * (10 ** 18));
+
+    expect(await mytoken.totalSupply()).to.equal(_initialSupply);
+  });
+
 });
