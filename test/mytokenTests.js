@@ -13,9 +13,9 @@ describe("MyToken", function () {
     const MyToken = await ethers.getContractFactory("MyToken");
     const mytoken = await MyToken.deploy(tokenName,tokenSymbol);
 
-    const [deployer] = await ethers.getSigners();
+    const [deployer, account] = await ethers.getSigners();
 
-    return { mytoken, tokenName, tokenSymbol, deployer };
+    return { mytoken, tokenName, tokenSymbol, deployer, account };
   }
 
   it("Should deploy and set the name and symbol correctly", async function () {
@@ -39,5 +39,16 @@ describe("MyToken", function () {
 
     expect(await mytoken.totalSupply()).to.equal(_initialSupply);
   });
+
+  it("Should return the balance of the address passed as a parameter of the function balanceOf", async function () {
+    const { mytoken, account } = await loadFixture (
+      deployContractAndSetVariables
+    );
+
+    const transfer_amount = 200;
+    await mytoken.transfer(account.address, transfer_amount);
+
+    expect(await mytoken.balanceOf(account.address)).to.equal(transfer_amount);
+  })
 
 });
