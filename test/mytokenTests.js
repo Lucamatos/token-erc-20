@@ -1,5 +1,6 @@
 const {  loadFixture,} = require("@nomicfoundation/hardhat-toolbox/network-helpers");
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
 describe("MyToken", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -49,6 +50,16 @@ describe("MyToken", function () {
     await mytoken.transfer(account.address, transfer_amount);
 
     expect(await mytoken.balanceOf(account.address)).to.equal(transfer_amount);
+  })
+
+  it ("Should revert with the right error if the zero address is passed to the function", async function() {
+    const { mytoken } = await loadFixture(
+      deployContractAndSetVariables
+    );
+
+    const receiver_account = ethers.ZeroAddress;
+
+    await expect(mytoken.transfer(receiver_account,200)).to.be.revertedWith("Transfer to the zero address is not allowed.");
   })
 
 });
