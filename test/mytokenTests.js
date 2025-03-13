@@ -62,4 +62,14 @@ describe("MyToken", function () {
     await expect(mytoken.transfer(receiver_account,200)).to.be.revertedWith("Transfer to the zero address is not allowed.");
   })
 
+  it ("It should return with the right error if sending ammount is greater than sender balance", async function() {
+    const { mytoken, deployer, account } = await loadFixture(
+      deployContractAndSetVariables
+    );
+
+    const msg_sender = mytoken.connect(account);
+
+    await expect(msg_sender.transfer(deployer.address,100)).to.be.revertedWith("You dont have enough funds.");
+  })
+
 });
