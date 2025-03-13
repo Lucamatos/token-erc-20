@@ -14,9 +14,9 @@ describe("MyToken", function () {
     const MyToken = await ethers.getContractFactory("MyToken");
     const mytoken = await MyToken.deploy(tokenName,tokenSymbol);
 
-    const [deployer, account] = await ethers.getSigners();
+    const [deployer, account, account_two] = await ethers.getSigners();
 
-    return { mytoken, tokenName, tokenSymbol, deployer, account };
+    return { mytoken, tokenName, tokenSymbol, deployer, account, account_two };
   }
 
   it ("Should deploy and set the name and symbol correctly", async function () {
@@ -122,5 +122,18 @@ describe("MyToken", function () {
 
     await expect(mytoken.transferFrom(deployer.address,ethers.ZeroAddress,100)).to.be.revertedWith("Transfer to the zero address is not allowed.")
   })
+
+  it ("Should revert with the right error if value sended is greater than the balance of the sender",
+    async function() {
+      const {mytoken, account, account_two} = await loadFixture(
+        deployContractAndSetVariables
+      );
+
+      await mytoken.transfer(account.address,100);
+
+      await expect(mytoken.transferFrom(account.address,account_two.address,150))
+      .to.be.rejectedWith("Insuficient funds.");
+    }
+  )
 
 });
