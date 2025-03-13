@@ -131,9 +131,19 @@ describe("MyToken", function () {
 
       await mytoken.transfer(account.address,100);
 
-      await expect(mytoken.transferFrom(account.address,account_two.address,150))
-      .to.be.rejectedWith("Insuficient funds.");
+      await expect(mytoken.transferFrom(account.address,account_two.address,150)).to.be.rejectedWith("Insuficient funds.");
     }
   )
+
+  it ("Should revert with the right error if the value sended is greater than allowance", async function() {
+    const { mytoken, deployer, account, account_two } = await loadFixture(
+      deployContractAndSetVariables
+    );
+
+    await mytoken.approve(account.address,100);
+
+    await expect(mytoken.transferFrom(deployer.address, account_two.address,150)).to.be
+    .revertedWith("Transaction Failed. Value is greater than allowance or you dont have access to it.");
+  })
 
 });
