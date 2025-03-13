@@ -19,7 +19,7 @@ describe("MyToken", function () {
     return { mytoken, tokenName, tokenSymbol, deployer, account };
   }
 
-  it("Should deploy and set the name and symbol correctly", async function () {
+  it ("Should deploy and set the name and symbol correctly", async function () {
     const { mytoken, tokenName, tokenSymbol, deployer } = await loadFixture(
       deployContractAndSetVariables
     );
@@ -31,7 +31,7 @@ describe("MyToken", function () {
     expect(await mytoken.symbol()).to.equal(tokenSymbol);
   });
 
-  it("Should return the total number of tokens available when the contract is deployed", async function () {
+  it ("Should return the total number of tokens available when the contract is deployed", async function () {
     const { mytoken } = await loadFixture(
       deployContractAndSetVariables
     );
@@ -41,7 +41,7 @@ describe("MyToken", function () {
     expect(await mytoken.totalSupply()).to.equal(_initialSupply);
   });
 
-  it("Should return the balance of the address passed as a parameter of the function balanceOf", async function () {
+  it ("Should return the balance of the address passed as a parameter of the function balanceOf", async function () {
     const { mytoken, account } = await loadFixture (
       deployContractAndSetVariables
     );
@@ -70,6 +70,27 @@ describe("MyToken", function () {
     const msg_sender = mytoken.connect(account);
 
     await expect(msg_sender.transfer(deployer.address,100)).to.be.revertedWith("You dont have enough funds.");
+  })
+
+  it ("Should update state of the blockchain and emit Transfer event on a successfull transfer function call", async function() {
+    const { mytoken, deployer, account } = await loadFixture(
+      deployContractAndSetVariables
+    );
+
+    const transferTx = await mytoken.transfer(account.address,100);
+    await transferTx.wait();
+
+    expect(await mytoken.balanceOf(account.address)).to.equal(100);
+    expect(transferTx).to.emit(mytoken, "Transfer").withArgs(deployer.address,account.address,100);
+  })
+
+  it("Should return true when simulating a transfer via callStatic", async function() {
+    const { mytoken, account } = await loadFixture(
+      deployContractAndSetVariables
+    );
+
+    const result = await mytoken.callStatic.transfer(account.address, 100);
+    expect(result).to.equal(true);
   })
 
 });
