@@ -84,13 +84,15 @@ describe("MyToken", function () {
     expect(transferTx).to.emit(mytoken, "Transfer").withArgs(deployer.address,account.address,100);
   })
 
-  it("Should return true when simulating a transfer via callStatic", async function() {
-    const { mytoken, account } = await loadFixture(
+  it("Should return the correct value for the spender allowance approved by the owner", async function() {
+    const { mytoken, deployer, account } = await loadFixture(
       deployContractAndSetVariables
     );
 
-    const result = await mytoken.callStatic.transfer(account.address, 100);
-    expect(result).to.equal(true);
+    const approveTx = await mytoken.approve(account, 100);
+    await approveTx.wait();
+
+    expect(await mytoken.allowance(deployer,account)).to.equal(100);
   })
 
 });
