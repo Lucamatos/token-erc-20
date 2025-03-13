@@ -62,7 +62,7 @@ describe("MyToken", function () {
     await expect(mytoken.transfer(receiver_account,200)).to.be.revertedWith("Transfer to the zero address is not allowed.");
   })
 
-  it ("Should return with the right error if sending ammount in transfer() is greater than sender balance", async function() {
+  it ("Should revert with the right error if sending ammount in transfer() is greater than sender balance", async function() {
     const { mytoken, deployer, account } = await loadFixture(
       deployContractAndSetVariables
     );
@@ -93,6 +93,14 @@ describe("MyToken", function () {
     await approveTx.wait();
 
     expect(await mytoken.allowance(deployer,account)).to.equal(100);
+  })
+
+  it("Should revert with the right error if the allowance is set to the zero address", async function () {
+    const { mytoken } = await loadFixture(
+      deployContractAndSetVariables
+    );
+
+    await expect(mytoken.approve(ethers.ZeroAddress,100)).to.be.revertedWith("Set allowance to the zero address is not allowed.")
   })
 
 });
