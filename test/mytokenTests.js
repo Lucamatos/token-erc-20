@@ -52,7 +52,7 @@ describe("MyToken", function () {
     expect(await mytoken.balanceOf(account.address)).to.equal(transfer_amount);
   })
 
-  it ("Should revert with the right error if the zero address is passed to the function", async function() {
+  it ("Should revert with the right error if the zero address is passed in transfer()", async function() {
     const { mytoken } = await loadFixture(
       deployContractAndSetVariables
     );
@@ -62,7 +62,7 @@ describe("MyToken", function () {
     await expect(mytoken.transfer(receiver_account,200)).to.be.revertedWith("Transfer to the zero address is not allowed.");
   })
 
-  it ("It should return with the right error if sending ammount is greater than sender balance", async function() {
+  it ("Should return with the right error if sending ammount in transfer() is greater than sender balance", async function() {
     const { mytoken, deployer, account } = await loadFixture(
       deployContractAndSetVariables
     );
