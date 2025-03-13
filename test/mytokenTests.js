@@ -115,4 +115,12 @@ describe("MyToken", function () {
     expect(approveTx).to.emit(mytoken, "Approval").withArgs(deployer.address,account.address,100);
   })
 
+  it ("Should revert with the correct error if receiver is set to the zero address in a transferFrom call", async function() {
+    const { mytoken, deployer } = await loadFixture(
+      deployContractAndSetVariables
+    );
+
+    await expect(mytoken.transferFrom(deployer.address,ethers.ZeroAddress,100)).to.be.revertedWith("Transfer to the zero address is not allowed.")
+  })
+
 });
