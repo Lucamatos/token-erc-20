@@ -84,7 +84,7 @@ describe("MyToken", function () {
     expect(transferTx).to.emit(mytoken, "Transfer").withArgs(deployer.address,account.address,100);
   })
 
-  it("Should return the correct value for the spender allowance approved by the owner", async function() {
+  it ("Should return the correct value for the spender allowance approved by the owner", async function() {
     const { mytoken, deployer, account } = await loadFixture(
       deployContractAndSetVariables
     );
@@ -95,12 +95,24 @@ describe("MyToken", function () {
     expect(await mytoken.allowance(deployer,account)).to.equal(100);
   })
 
-  it("Should revert with the right error if the allowance is set to the zero address", async function () {
+  it ("Should revert with the right error if the allowance is set to the zero address", async function () {
     const { mytoken } = await loadFixture(
       deployContractAndSetVariables
     );
 
     await expect(mytoken.approve(ethers.ZeroAddress,100)).to.be.revertedWith("Set allowance to the zero address is not allowed.")
+  })
+
+  it ("Should update state of the blockchain and emit Approve event on successfull approve call", async function() {
+    const { mytoken, deployer, account } = await loadFixture(
+      deployContractAndSetVariables
+    );
+
+    const approveTx = await mytoken.approve(account.address,100);
+    await approveTx.wait();
+
+    expect(await mytoken.allowance(deployer.address,account.address)).to.equal(100);
+    expect(approveTx).to.emit(mytoken, "Approval").withArgs(deployer.address,account.address,100);
   })
 
 });
