@@ -131,7 +131,7 @@ describe("MyToken", function () {
 
       await mytoken.transfer(account.address,100);
 
-      await expect(mytoken.transferFrom(account.address,account_two.address,150)).to.be.rejectedWith("Insuficient funds.");
+      await expect(mytoken.transferFrom(account.address,account_two.address,150)).to.be.revertedWith("Insuficient funds.");
     }
   )
 
@@ -146,4 +146,25 @@ describe("MyToken", function () {
     .revertedWith("Transaction Failed. Value is greater than allowance or you dont have access to it.");
   })
 
+  it ("Should update state of the blockchain and emit Transfer event o successfull transferFrom call",
+    async function() {
+      const { mytoken, deployer, account, account_two } = await loadFixture(
+        deployContractAndSetVariables
+      );
+
+      const initial_sender_balance = await mytoken.totalSupply();
+
+      const msg_sender = mytoken.connect(account);
+
+      await mytoken.approve(account.address,100);
+
+      const transferFromTx = await msg_sender.transferFrom(deployer.address,account_two.address,100);
+      await transferFromTx.wait();
+
+      expect(await mytoken.allowance(deployer.address,account.address)).to.equal(0);
+      expect(await mytoken.balanceOf(deployer.address)).to.equal(initial_sender_balance - BigInt(100));
+      expect(await mytoken.balanceOf(account_two.address)).to.equal(100);
+      expect(transferFromTx).to.emit(mytoken,"Transfer").withArgs(deployer.address,account_two.address,100);
+    }
+  )
 });
